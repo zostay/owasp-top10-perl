@@ -12,3 +12,10 @@ are actual best practice, but they are an attempt toward it.
 
 If you would like to contribute or find a problem, please let me know using one
 of the many possible communication mechanisms available on github.
+
+# Copyright and License
+
+All of the code in these examples is made available under the Artistic 2.0
+License or the GPL 2.0, whichever you prefer.
+
+Copyright 2011 Andrew Sterling Hanenkamp.
