@@ -13,4 +13,4 @@ use LWP::UserAgent;
 # Posting a login using HTTP with SSL
 my $ua = LWP::UserAgent->new( cookie_jar => {} );
 $ua->post('https://foo/login', [ username => 'me', password => 'secret' ]);
-my $res = $ua->get('http://foo/info');
+my $res = $ua->get('https://foo/info');
