@@ -1,6 +1,7 @@
 #!/usr/bin/env plackup
 use v5.14;
 
+use HTML::Entities;
 use Plack::Request;
 
 my $app = sub {
@@ -11,13 +12,19 @@ my $app = sub {
     my $input = $req->parameters->{input};
 
     # Validate the input to make sure there aren't any <script> tags in it 
-    return [ 200, [ 'Content-type' => 'text/html' ], [ 'You are naughty.' ] ]
+    return [ 400, [ 'Content-type' => 'text/html' ], [ 'You are naughty.' ] ]
             unless $input =~ /^\w+$/;
+
+    # Prior to outputting, make sure we encode it for HTML
+    my $output = encode_entities($input);
 
     # Display that input in the HTML page
     return [ 
         200, [ 'Content-type' => 'text/html' ], 
-        [ "<html><head><title>Hello</title></head><body><p>$input</p></body></html>" ] 
+        [ 
+            qq[<html><head><title>Hello</title></head>],
+            qq[<body><p>$output</p></body></html>],
+        ] 
     ];
 };
 

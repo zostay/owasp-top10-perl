@@ -10,10 +10,14 @@ my $app = sub {
     # Load our input
     my $input = $req->parameters->{input};
 
-    # Display that input in the HTML page
+    # BAD BAD BAD Display that input in the HTML page, but without validation or
+    # encoding out the possibly SCRIPT or other malicious tags.
     return [ 
         200, [ 'Content-type' => 'text/html' ], 
-        [ "<html><head><title>Hello</title></head><body><p>$input</p></body></html>" ] 
+        [ 
+            qq[<html><head><title>Hello</title></head>],
+            qq[<body><p>$input</p></body></html>],
+        ] 
     ];
 };
 
