@@ -5,7 +5,7 @@ use v5.14;
 # much as it is a web server configuration issue. However, your application
 # design will help affect this.
 #
-# As such, it is easier to demonstrate a client interation than a server one for
+# As such, it is easier to demonstrate a client interaction than a server one for
 # this purpose.
 
 use LWP::UserAgent;
