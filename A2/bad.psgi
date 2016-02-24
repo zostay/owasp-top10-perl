@@ -1,5 +1,5 @@
 #!/usr/bin/env plackup
-use v5.14;
+use v5.22;
 
 use Plack::Request;
 
@@ -40,3 +40,5 @@ sub authentic_user {
     return 1 if $user eq 'bob' and $password eq 'is really awesome';
     return '';
 }
+
+# vim: ft=perl ts=4 sw=4

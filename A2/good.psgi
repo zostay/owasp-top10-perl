@@ -1,5 +1,5 @@
 #!/usr/bin/env plackup
-use v5.14;
+use v5.22;
 
 use Plack::Request;
 
@@ -44,3 +44,4 @@ sub authentic_user {
     return '';
 }
 
+# vim: ft=perl ts=4 sw=4
