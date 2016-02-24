@@ -43,4 +43,4 @@ sub update_secret_data_for {
     close $fh;
 }
 
-# vim: ft=perl ts=4 sw=4
+# vim: ft=perl ts=4 sw=4 sts=4

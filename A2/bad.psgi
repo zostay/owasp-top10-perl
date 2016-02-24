@@ -41,4 +41,4 @@ sub authentic_user {
     return '';
 }
 
-# vim: ft=perl ts=4 sw=4
+# vim: ft=perl ts=4 sw=4 sts=4

@@ -18,4 +18,4 @@ my $app = sub {
     return [ 200, [ 'Content-type' => 'text/plain' ], [ $foo->{stuff} ] ];
 };
 
-# vim: ft=perl ts=4 sw=4
+# vim: ft=perl ts=4 sw=4 sts=4
