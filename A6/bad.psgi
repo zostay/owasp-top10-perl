@@ -1,5 +1,5 @@
 #!/usr/bin/env plackup
-use v5.14;
+use v5.22;
 
 use Plack::Request;
 
@@ -11,7 +11,7 @@ my %passwords;
 my %credit_cards;
 
 my $app = sub {
-    
+
     # Use Plack::Request to parse the env
     my $req = Plack::Request->new(shift);
 
@@ -36,3 +36,5 @@ my $app = sub {
 
     return [ 200, [ 'Content-type' => 'text/plain' ], [ 'Account and payment information updated.' ] ];
 };
+
+# vim: ft=perl ts=4 sw=4

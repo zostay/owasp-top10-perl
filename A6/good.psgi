@@ -1,5 +1,5 @@
 #!/usr/bin/env plackup
-use v5.14;
+use v5.22;
 
 use Crypt::Rijndael;
 use Crypt::SaltedHash;
@@ -23,9 +23,12 @@ my %credit_cards;
 my $PROD_SECRET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123';
 
 my $app = sub {
-    
+
     # Use Plack::Request to parse the env
     my $req = Plack::Request->new(shift);
+
+    return [ 403, [ 'Content-type' => 'text/plain' ], [ 'This connection is not secure.' ] ]
+        unless $req->secure;
 
     return [ 403, [ 'Content-type' => 'text/plain' ], [ 'You are not admin. Go away.' ] ]
         unless $req->session->{authorize_user};
@@ -52,3 +55,4 @@ my $app = sub {
     return [ 200, [ 'Content-type' => 'text/plain' ], [ 'Account and payment information updated.' ] ];
 };
 
+# vim: ft=perl ts=4 sw=4
