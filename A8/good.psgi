@@ -1,5 +1,5 @@
 #!/usr/bin/env plackup
-use v5.14;
+use v5.22;
 
 use autodie;
 use Plack::Request;
@@ -64,3 +64,4 @@ sub update_secret_data_for {
     close $fh;
 }
 
+# vim: ft=perl ts=4 sw=4
