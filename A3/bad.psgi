@@ -1,5 +1,5 @@
 #!/usr/bin/env plackup
-use v5.14;
+use v5.22;
 
 use Plack::Request;
 
@@ -12,13 +12,13 @@ my $app = sub {
 
     # BAD BAD BAD Display that input in the HTML page, but without validation or
     # encoding out the possibly SCRIPT or other malicious tags.
-    return [ 
-        200, [ 'Content-type' => 'text/html' ], 
-        [ 
+    return [
+        200, [ 'Content-type' => 'text/html' ],
+        [
             qq[<html><head><title>Hello</title></head>],
             qq[<body><p>$input</p></body></html>],
-        ] 
+        ]
     ];
 };
 
-# vim: ft=perl
+# vim: ft=perl ts=4 sw=4

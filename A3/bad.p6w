@@ -1,0 +1,23 @@
+#!/usr/bin/env smackup
+use v6;
+
+sub app(%env) {
+    start {
+        # Parse the expression from the query string
+        my $qs         = %env<QUERY_STRING>;
+        my %params     = $qs.split('&')».split('=').flat;
+
+        # Load our input
+        my $input = %params<input>;
+
+        # BAD BAD BAD Display that input in the HTML page, but without validation or
+        # encoding out the possibly SCRIPT or other malicious tags.
+        200, [ Content-type => 'text/html' ],
+        [
+            qq[<html><head><title>Hello</title></head>],
+            qq[<body><p>$input</p></body></html>],
+        ]
+    }
+}
+
+# vim: ft=perl6 ts=4 sw=4
