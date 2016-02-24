@@ -6,8 +6,9 @@ use MONKEY-SEE-NO-EVAL;
 sub app(%env) {
     start {
         # Parse the expression from the query string
-        my $qs     = %env<QUERY_STRING>;
-        my %params = $qs.split('&')».split('=').flat;
+        my $qs         = %env<QUERY_STRING>;
+        my %params     = $qs.split('&')».split('=').flat;
+        my $expression = %params<expression>;
 
         # BAD BAD BAD EVAL the given expression
         my $value = EVAL $expression;
