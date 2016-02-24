@@ -1,0 +1,27 @@
+#!/usr/bin/env smackup
+use v6;
+
+sub app(%env) {
+    start {
+        # Parse the expression from the query string
+        my $qs     = %env<QUERY_STRING>;
+        my %params = $qs.split('&')».split('=').flat;
+
+        # Make sure it's just numbers and accepted operators
+        return 403, [ Content-type => 'text/plain' ], [ 'Naughty!' ]
+            unless $expression ~~ regex {
+                ^ \d+ <[ + - * ]> \d+ $
+            };
+
+        # Still not wonderful... but validated
+        my $value = do {
+            use MONKEY-SEE-NO-EVAL;
+            EVAL $expression;
+        };
+
+        200, [ Content-type => 'text/plain' ], [ "RESULT = $value" ];
+    }
+}
+
+# vim: ft=perl6 ts=4 sw=4
+

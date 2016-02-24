@@ -1,5 +1,5 @@
 #!/usr/bin/env plackup
-use v5.14;
+use v5.22;
 
 use Plack::Request;
 
@@ -18,5 +18,4 @@ my $app = sub {
     return [ 200, [ 'Content-type' => 'text/plain' ], [ $foo->{stuff} ] ];
 };
 
-# vim: ft=perl
-
+# vim: ft=perl ts=4 sw=4

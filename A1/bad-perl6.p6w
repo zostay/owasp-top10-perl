@@ -1,0 +1,19 @@
+#!/usr/bin/env smackup
+use v6;
+
+use MONKEY-SEE-NO-EVAL;
+
+sub app(%env) {
+    start {
+        # Parse the expression from the query string
+        my $qs     = %env<QUERY_STRING>;
+        my %params = $qs.split('&')».split('=').flat;
+
+        # BAD BAD BAD EVAL the given expression
+        my $value = EVAL $expression;
+
+        200, [ Content-type => 'text/plain' ], [ "RESULT = $value" ];
+    }
+}
+
+# vim: ft=perl6 ts=4 sw=4
