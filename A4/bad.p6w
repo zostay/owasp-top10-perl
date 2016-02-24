@@ -1,0 +1,46 @@
+#!/usr/bin/env smackup
+use v6;
+
+# This example assumes a P6SGI session extension is available.
+
+sub app(%env) {
+    start {
+        # Parse the expression from the query string
+        my $qs     = %env<QUERY_STRING>;
+        my %params = $qs.split('&')».split('=').flat;
+
+        # Get the name and make sure it's valid
+        my $name = %params<name>;
+        return 400, [ Content-type => 'text/plain' ], [ 'You give love a bad name.' ]
+            if $name ~~ /^ <[ a..z A..Z ]>+ $/
+
+        # Check that the user is authorized to use this site
+        return 403, [ Content-type => 'text/plain' ], [ 'Neener! Neener! Neener!' ]
+            unless %env<p6wx.session><authorized-user>;
+
+        # Lookup secret data for the anmed user
+        my $data = lookup-secret-data-for($name);
+
+        # Check that this user can see this secret data
+        return 404, [ Content-type => 'text/plain' ], [ 'What secret data?' ]
+            with $data;
+
+        # BAD BAD BAD Show without making sure whose secrets you are
+        # giving away.
+        return 200, [ Content-type => 'text/plain' ], [ $data ];
+    }
+}
+
+# Very official secret keeper thing
+sub lookup-secret-data-for($name) returns Str {
+    my %secret_data =
+        grigor => 'likes cats',
+        ian    => 'likes dogs',
+        randal => 'likes ponies',
+        ;
+
+    return $_ with %secret_data{ $name };
+    Nil;
+}
+
+# vim: ft=perl6 ts=4 sw=4

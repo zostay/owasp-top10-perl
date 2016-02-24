@@ -1,5 +1,5 @@
 #!/usr/bin/env plackup
-use v5.14;
+use v5.22;
 
 use Plack::Request;
 
@@ -39,14 +39,14 @@ sub lookup_secret_data_for {
     my $name = shift;
 
     state $secret_data = {
-        bob   => 'likes cats',
-        steve => 'likes dogs',
-        rob   => 'likes ponies',
+        grigor => 'likes cats',
+        ian    => 'likes dogs',
+        randal => 'likes ponies',
     };
 
     return $secret_data->{ $name } if defined $secret_data->{ $name };
     return '';
 }
 
-# vim: ft=perl
+# vim: ft=perl ts=4 sw=4
 

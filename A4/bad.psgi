@@ -1,5 +1,5 @@
 #!/usr/bin/env plackup
-use v5.14;
+use v5.22;
 
 use Plack::Request;
 
@@ -26,7 +26,7 @@ my $app = sub {
     return [ 404, [ 'Content-type' => 'text/plain' ], [ 'What secret data?' ] ]
         unless defined $data;
 
-    # BAD BAD BAD Show without making sure whose secrets you are 
+    # BAD BAD BAD Show without making sure whose secrets you are
     # giving away.
     return [ 200, [ 'Content-type' => 'text/plain' ], [ $data ] ];
 };
@@ -36,13 +36,13 @@ sub lookup_secret_data_for {
     my $name = shift;
 
     state $secret_data = {
-        bob   => 'likes cats',
-        steve => 'likes dogs',
-        rob   => 'likes ponies',
+        grigor => 'likes cats',
+        ian    => 'likes dogs',
+        randal => 'likes ponies',
     };
 
     return $secret_data->{ $name } if defined $secret_data->{ $name };
     return;
 }
 
-# vim: ft=perl
+# vim: ft=perl ts=4 sw=4
