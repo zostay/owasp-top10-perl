@@ -3,22 +3,40 @@ use v5.14;
 
 use Plack::Request;
 
+# This example assumes that you have Plack::Middleware::Session in place or
+# something similar.
+
 my $app = sub {
-    # Use Plack::Request to help parse the environment
+    # Use Plack::Request to parse the env
     my $req = Plack::Request->new(shift);
 
-    # Load our input
-    my $input = $req->parameters->{input};
+    # Load the username and password
+    my $name = $req->parameters->{name};
+    my $password = $req->parameters->{password};
 
-    # BAD BAD BAD Display that input in the HTML page, but without validation or
-    # encoding out the possibly SCRIPT or other malicious tags.
-    return [ 
-        200, [ 'Content-type' => 'text/html' ], 
-        [ 
-            qq[<html><head><title>Hello</title></head>],
-            qq[<body><p>$input</p></body></html>],
-        ] 
-    ];
-};
+    # Authenticate the username and password
+    if (authentic_user($name, $password)) {
 
-# vim: ft=perl
+        # The user is authorized
+        $req->session->{authorized_user} = 1;
+        $req->session->{user_name} = $name;
+
+        # BAD BAD BAD We are still using the same cookie
+        return [ 200, [ 'Content-type' => 'text/plain' ], [ 'Login OK' ] ];
+    }
+
+    # Authentication has failed
+    else {
+
+        # Tell them to go away
+        return [ 200, [ 'Content-type' => 'text/plain' ], [ 'I never knew you.' ] ];
+    }
+}
+
+# Very official authentication checker thing
+sub authentic_user {
+    my ($name, $password) = @_;
+
+    return 1 if $user eq 'bob' and $password eq 'is really awesome';
+    return '';
+}

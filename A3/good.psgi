@@ -1,46 +1,31 @@
 #!/usr/bin/env plackup
 use v5.14;
 
+use HTML::Entities;
 use Plack::Request;
 
-# This example assumes that you have Plack::Middleware::Session in place or
-# something similar.
-
 my $app = sub {
-    # Use Plack::Request to parse the env
+    # Use Plack::Request to help parse the environment
     my $req = Plack::Request->new(shift);
 
-    # Load the username and password
-    my $name = $req->parameters->{name};
-    my $password = $req->parameters->{password};
+    # Load our input
+    my $input = $req->parameters->{input};
 
-    # Authenticate the username and password
-    if (authentic_user($name, $password)) {
+    # Validate the input to make sure there aren't any <script> tags in it 
+    return [ 400, [ 'Content-type' => 'text/html' ], [ 'You are naughty.' ] ]
+            unless $input =~ /^\w+$/;
 
-        # The user is authorized
-        $req->session->{authorized_user} = 1;
-        $req->session->{user_name} = $name;
+    # Prior to outputting, make sure we encode it for HTML
+    my $output = encode_entities($input);
 
-        # Tell Plack::Middleware::Session to set a new cookie
-        $req->session_options->{change_id} = 1;
+    # Display that input in the HTML page
+    return [ 
+        200, [ 'Content-type' => 'text/html' ], 
+        [ 
+            qq[<html><head><title>Hello</title></head>],
+            qq[<body><p>$output</p></body></html>],
+        ] 
+    ];
+};
 
-        # Return success
-        return [ 200, [ 'Content-type' => 'text/plain' ], [ 'Login OK' ] ];
-    }
-
-    # Authentication has failed
-    else {
-
-        # Tell them to go away
-        return [ 200, [ 'Content-type' => 'text/plain' ], [ 'I never knew you.' ] ];
-    }
-}
-
-# Very official authentication checker thing
-sub authentic_user {
-    my ($name, $password) = @_;
-
-    return 1 if $user eq 'bob' and $password eq 'is really awesome';
-    return '';
-}
-
+# vim: ft=perl
