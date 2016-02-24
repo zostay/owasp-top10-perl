@@ -1,7 +1,5 @@
 #!/usr/bin/env plackup
-
-# BAD BAD BAD Using an old and probably less secure version of Perl
-use 5.800000;
+use v5.22;
 
 use Plack::Builder;
 use Plack::Request;
@@ -22,3 +20,5 @@ builder {
 
     $app;
 };
+
+# vim: ft=perl ts=4 sw=4

@@ -1,5 +1,5 @@
 #!/usr/bin/env plackup
-use v5.14;
+use v5.22;
 
 use Plack::Builder;
 use Plack::Request;
