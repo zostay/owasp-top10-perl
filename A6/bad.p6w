@@ -1,0 +1,42 @@
+#!/usr/bin/env smackup
+use v5.22;
+
+use Crypt::Argon2;
+use Crypt::AES;
+use Smack::Request;
+
+# This example assumes that you have Smack::Middleware::Session in place or
+# something similar.
+
+# Very official storage things
+my %passwords;
+my %credit_cards;
+
+sub app(%env) {
+
+    # Use Smack::Request to parse the env
+    my $req = SMack::Request.new(%env);
+
+    return 403, [ Content-type => 'text/plain' ], [ 'You are not admin. Go away.' ]
+        unless $req.session<authorized-user>;
+
+    my $name     = $req.body-parameters<name>;
+    $name ~~ /^ <[ a..z A..Z ]>+ $/
+        or return 400, [ Content-type => 'text/plain' ], [ 'That name is illegal.' ];
+
+    my $password = $req.body-parameters<password>;
+
+    # BAD BAD BAD Storing passwords in plain text
+    %passwords{ $name } = $password;
+
+    my $cc_number = $req.body-parameters<credit-card-number>;
+    $cc_number =~ /^ <[ 0..9 ]> ** 15..16 $/
+        or return 400, [ Content-type => 'text/plain' ], [ 'That cannot possibly be a VISA or American Express.' ];
+
+    # BAD BAD BAD Storing credit card numbers in plain text
+    %credit_cards{ $name } = $cc_number;
+
+    200, [ Content-type => 'text/plain' ], [ 'Account and payment information updated.' ];
+}
+
+# vim: ft=perl6 ts=4 sw=4 sts=4

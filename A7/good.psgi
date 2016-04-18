@@ -15,7 +15,7 @@ my $app = sub {
     return [ 403, [ 'Content-type' => 'text/plain' ], [ 'No way, José!' ] ]
             unless $req->session->{'authorized_user'};
 
-    # Return secrets without checking access
+    # Return secrets after checking access
     return [ 200, [ 'Content-type' => 'text/plain' ], [ 'Secret Data for Logged Users Only' ] ];
 };
 

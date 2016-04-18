@@ -1,0 +1,22 @@
+#!/usr/bin/env smackup
+use v6;
+
+use Smack::Request;
+
+# This example assumes that you have Smack::Middleware::Session in place or
+# something similar.
+
+sub app(%env) {
+
+    # Use Plack::Request to parse the env
+    my $req = Smack::Request.new(%env);
+
+    # Only let logged users in; maybe best to send them off to a login screen
+    return 403, [ Content-type => 'text/plain' ], [ 'No way, José!' ]
+            unless $req.session<authorized-user>;
+
+    # Return secrets after checking access
+    200, [ 'Content-type' => 'text/plain' ], [ 'Secret Data for Logged Users Only' ];
+};
+
+# vim: ft=perl6 ts=4 sw=4 sts=4

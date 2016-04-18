@@ -1,14 +1,17 @@
 #!/usr/bin/env smackup
 use v6;
 
+use Smack::Request;
+
 use MONKEY-SEE-NO-EVAL;
 
 sub app(%env) {
     start {
-        # Parse the expression from the query string
-        my $qs         = %env<QUERY_STRING>;
-        my %params     = $qs.split('&')».split('=').flat;
-        my $expression = %params<expression>;
+        # Use Smack::Request to parse the environment
+        my $req = Smack::Request.new(%env);
+
+        # Load the expression
+        my $expression = $req.perameters<expression>;
 
         # BAD BAD BAD EVAL the given expression
         my $value = EVAL $expression;

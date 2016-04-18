@@ -1,0 +1,16 @@
+#!/usr/bin/env smackup
+use v6;
+
+sub app(%env) {
+    # Build a request object to parse the parameters for us
+    my $qs     = %env<QUERY_STRING>;
+    my %params = $qs.split('&')».split('=').flat;
+
+    # Get the goto parameter
+    my $goto   = %params<goto>;
+
+    # BAD BAD BAD Redirect to wherever that says to go
+    302, [ Location => $goto ], []
+}
+
+# vim: ft=perl6 ts=4 sw=4 sts=4

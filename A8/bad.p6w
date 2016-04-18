@@ -1,0 +1,41 @@
+#!/usr/bin/env smackup
+use v6;
+
+use Smack::Request;
+
+# This example assumes that you have Smack::Middleware::Session in place or
+# something similar.
+
+# Very official secret updater thing
+sub update-secret-data-for($name, $secret) {
+    my $fh = "secrets/$name".IO.open(:r);
+    $fh.say: $secret;
+    $fh.close;
+}
+
+sub app(%env) {
+    my $req = Smack::Request.new(%env);
+
+    # Make sure the user is logged in
+    return 403, [ Content-type => 'text/plain' ], [ 'Not welcome.' ]
+        unless $req.session<authorized-user>;
+
+    my $name   = $req.parameters<name>;
+    $name ~~ /^ <[ a..z A..Z ]>+ $/
+        or return 400, [ Content-type => 'text/plain' ], [ 'Letters only, you.' ];
+
+    my $secret = $req.parameters<secret>;
+    $secret =~ /^ <[ a..z A..Z \s ]>+ $/
+        or return 400, [ Content-type => 'text/plain' ], [ 'Your secret is too complicated.' ];
+
+    # Make sure the user is allowed to do this
+    return 403, [ Content-type => 'text/plain' ], [ 'Not the one.' ]
+        unless $req.session<user-name> = $name;
+
+    # BAD BAD BAD Update vulnerable to Cross Site Request Forgery
+    update-secret-data-for($name, $secret);
+
+    200, [ Content-type => 'text/plain' ], [ 'Secret updated.' ];
+}
+
+# vim: ft=perl6 ts=4 sw=4 sts=4

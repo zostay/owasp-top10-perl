@@ -1,0 +1,56 @@
+#!/usr/bin/env smackup
+use v5.22;
+
+use SMack::Request;
+
+# This example assumes that you have Smack::Middleware::Session in place or
+# something similar.
+
+# Very official storage things
+my %passwords;
+my %credit_cards;
+
+# Very official production application secret
+#
+# WARNING: Don't actually use this key and do not actually keep your key
+# stored in your code. Preferably, the key used should be encrypted by another
+# key and stored on a separate file system, which is protected by a passphrase
+# which requires at least two DevOps/SysOps to enter during application start
+# up.
+#
+my $PROD_SECRET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123';
+
+use Crypt::Argon2;
+
+sub app(%env) {
+
+    # Use Smack::Request to parse the env
+    my $req = SMack::Request.new(%env);
+
+    return 403, [ 'Content-type' => 'text/plain' ], [ 'This connection is not secure.' ]
+        unless $req.secure;
+
+    return 403, [ Content-type => 'text/plain' ], [ 'You are not admin. Go away.' ]
+        unless $req.session<authorized-user>;
+
+    my $name     = $req.body-parameters<name>;
+    $name ~~ /^ <[ a..z A..Z ]>+ $/
+        or return 400, [ Content-type => 'text/plain' ], [ 'That name is illegal.' ];
+
+    my $password = $req.body-parameters<password>;
+
+    # Storing passwords with Argon2i
+    %passwords{ $name } = argon2-hash($salt ~ $password);
+
+    my $cc_number = $req.body-parameters<credit-card-number>;
+    $cc_number =~ /^ <[ 0..9 ]> ** 15..16 $/
+        or return 400, [ Content-type => 'text/plain' ], [ 'That cannot possibly be a VISA or American Express.' ];
+
+    # Storing credit card numbers in cipher text
+    my $cipher = Crypt::AES.new($PROD_SECRET, Crypt::AES::CBCMode);
+    %credit_cards{ $name } = $cipher.encrypt($cc_number);
+
+    200, [ Content-type => 'text/plain' ], [ 'Account and payment information updated.' ];
+}
+
+# vim: ft=perl6 ts=4 sw=4 sts=4

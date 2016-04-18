@@ -1,0 +1,15 @@
+#!/usr/bin/env smackup
+use v6;
+
+use Smack::Request;
+
+sub app(%env) {
+
+    # Use Plack::Request to parse the env
+    my $req = Smack::Request.new(%env);
+
+    # BAD BAD BAD Return secrets without checking access
+    200, [ 'Content-type' => 'text/plain' ], [ 'Secret Data for Logged Users Only' ];
+};
+
+# vim: ft=perl6 ts=4 sw=4 sts=4

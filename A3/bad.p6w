@@ -1,14 +1,15 @@
 #!/usr/bin/env smackup
 use v6;
 
+use Smack::Request;
+
 sub app(%env) {
     start {
-        # Parse the expression from the query string
-        my $qs         = %env<QUERY_STRING>;
-        my %params     = $qs.split('&')».split('=').flat;
+        # Use Smack::Request to parse the environment
+        my $req = Smack::Request.new(%env);
 
         # Load our input
-        my $input = %params<input>;
+        my $input = $req.parameters<input>;
 
         # BAD BAD BAD Display that input in the HTML page, but without validation or
         # encoding out the possibly SCRIPT or other malicious tags.

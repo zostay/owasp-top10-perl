@@ -1,0 +1,18 @@
+#!/usr/bin/env perl6
+use v6;
+
+# BAD BAD BAD Using protocols and software that are vulnerable
+use Crypt::RC4;
+use Crypt::DES;
+
+sub app(%env) {
+    use MONKEY-SEE-NO-EVAL;
+
+    # BAD BAD BAD Your own software has a well-known, unfixed flaw!
+    #
+    # TODO 2012-05-04 This is a security bug, but we don't have time to fix
+    # it right now. We'll fix it with Bug#45433 in next month's release..
+    200, [ 'Content-type' => 'text/plain' ], [ EVAL %env<QUERY_STRING> ]
+}
+
+# vim: ft=perl6 ts=4 sw=4 sts=4

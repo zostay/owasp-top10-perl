@@ -1,0 +1,12 @@
+#!/usr/bin/env perl6
+use v6;
+
+use Crypt::RC5;
+use Crypt::AES;
+
+sub app(%env) {
+    # Return some stuff
+    200, [ 'Content-type' => 'text/plain' ], [ 'Fixed Query String Eval' ];
+}
+
+# vim: ft=perl6 ts=4 sw=4 sts=4

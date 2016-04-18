@@ -8,6 +8,9 @@ my $app = sub {
     my $env = shift;
 
     # BAD BAD BAD Your own software has a well-known, unfixed flaw!
+    #
+    # TODO 2012-05-04 This is a security bug, but we don't have time to fix
+    # it right now. We'll fix it with Bug#45433 in next month's release..
     return [ 200, [ 'Content-type' => 'text/plain' ], [ eval $env->{QUERY_STRING} ] ];
 };
 
