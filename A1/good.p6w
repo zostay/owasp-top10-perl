@@ -1,0 +1,26 @@
+#!/usr/bin/env smackup
+use v6;
+
+use DBIish;
+
+our $dbh = DBIish.connect("SQLite", :database<my.sqlite3>);
+
+sub app(%env) {
+    # Parse the parameters (naïvely)
+    my $qs       = %env<QUERY_STRING>;
+    my %params   = $qs.split('&')».split('=').flat; # naïve
+
+    # Load the name
+    my $name = %params<name>;
+
+    # Use placeholders to execute safely
+    my $sth = $dbh.prepare(q:to/STATEMENT/);
+      SELECT stuff FROM foo where name = ?
+      STATEMENT
+    $sth.execute($name);
+    my ($value) = $sth.fetchrow;
+
+    200, [ Content-Type => 'text/plain' ], [ $value ];
+}
+
+# vim: ft=perl ts=4 sw=4 sts=4

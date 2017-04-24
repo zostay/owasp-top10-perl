@@ -1,10 +1,6 @@
 #!/usr/bin/env smackup
 use v6;
 
-use Smack::Request;
-
-# This example assumes a P6SGI session extension is available.
-
 # Very official authentication checker thing
 sub authentic-user($name, $password) returns Bool {
     $user eq 'bob' and $password eq 'is really awesome'

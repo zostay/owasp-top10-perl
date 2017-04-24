@@ -1,11 +1,6 @@
 #!/usr/bin/env smackup
 use v6;
 
-use Smack::Request;
-
-# This example assumes that you have Smack::Middleware::Session in place or
-# something similar.
-
 # Very official secret updater thing
 sub update-secret-data-for($name, $secret) {
     my $fh = "secrets/$name".IO.open(:r);
@@ -14,40 +9,38 @@ sub update-secret-data-for($name, $secret) {
 }
 
 sub app(%env) {
-    my $req = Smack::Request.new(%env);
+    # Parse the parameters (naïvely)
+    my $qs       = %env<QUERY_STRING>;
+    my %params   = %env<p6w.input>.reduce({ $^a ~ $^b }).decode('UTF-8')\
+                                 .split('&')».split('=').flat; # naïve
+    my %session := %env<p6w.session>;
 
     # Make sure the user is logged in
     return 403, [ Content-type => 'text/plain' ], [ 'Not welcome.' ]
-        unless $req.session<authorized-user>;
+        unless %session<authorized-user>;
 
-    # Not good: make sure we only make changes on POST
-    return 405, [ Content-type => 'text/plain' ], [ 'I do not care for your method.' ]
-        unless $req.method eq 'POST';
-
-    # Better: check the referrer
+    # To start: check the origin/referrer
     return 403, [ Content-type => 'text/plain' ], [ 'Local edits only, please.' ]
-        unless $req.referer eq 'https://foo/transfers';
+        unless %env<HTTP_ORIGIN> | %env<HTTP_REFERER> eq 'https://foo'; # naïve
 
-    # Best: synchronization tokens
+    # CSRF-specific auth: e.g., synchronizer token or double-submit cookie
     return 403, [ Content-type => 'text/plain' ], [ 'Tricksy! False! Bad Hobbitses!' ]
-        unless $req.body-parameters<token> eq $req.session<next-oken>:delete;
-
-    $req.session<next-token> = rand;
+        unless %params<token> eq %session<token>;
 
     # Prefer body-parameters, to limit these to POST body
-    my $name   = $req.body-parameters<name>;
+    my $name   = %params<name>;
     $name ~~ /^ <[ a..z A..Z ]>+ $/
         or return 400, [ 'Content-type' => 'text/plain' ], [ 'Letters only, you.' ];
 
-    my $secret = $req.body-parameters<secret>;
+    my $secret = %parameters<secret>;
     $secret =~ /^ <[ a..z A..Z \s ]>+ $/
         or return 400, [ 'Content-type' => 'text/plain' ], [ 'Your secret is too complicated.' ];
 
     # Make sure the user is allowed to do this
     return 403, [ 'Content-type' => 'text/plain' ], [ 'Not the one.' ]
-        unless $req.session<user-name> = $name;
+        unless %session<user-name> = $name;
 
-    # BAD BAD BAD Update vulnerable to Cross Site Request Forgery
+    # Update is safe from CSRF
     update-secret-data-for($name, $secret);
 
     200, [ 'Content-type' => 'text/plain' ], [ 'Secret updated.' ];

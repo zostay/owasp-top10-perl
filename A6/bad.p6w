@@ -1,35 +1,28 @@
 #!/usr/bin/env smackup
-use v5.22;
-
-use Crypt::Argon2;
-use Crypt::AES;
-use Smack::Request;
-
-# This example assumes that you have Smack::Middleware::Session in place or
-# something similar.
+use v6;
 
 # Very official storage things
 my %passwords;
 my %credit_cards;
 
 sub app(%env) {
+    my %session := %env<p6w.session>;
+    my %params   = %env<p6w.input>.reduce({ $^a ~ $^b }).decode('UTF-8')\
+                                  .split('&')».split('=').flat; # naïve
 
-    # Use Smack::Request to parse the env
-    my $req = SMack::Request.new(%env);
+    return 403, [ Content-type => 'text/plain' ], [ 'You are not authorized. Go away.' ]
+        unless %session<authorized-user>;
 
-    return 403, [ Content-type => 'text/plain' ], [ 'You are not admin. Go away.' ]
-        unless $req.session<authorized-user>;
-
-    my $name     = $req.body-parameters<name>;
+    my $name     = %params<name>;
     $name ~~ /^ <[ a..z A..Z ]>+ $/
         or return 400, [ Content-type => 'text/plain' ], [ 'That name is illegal.' ];
 
-    my $password = $req.body-parameters<password>;
+    my $password = %params<password>;
 
     # BAD BAD BAD Storing passwords in plain text
     %passwords{ $name } = $password;
 
-    my $cc_number = $req.body-parameters<credit-card-number>;
+    my $cc_number = %params<credit-card-number>;
     $cc_number =~ /^ <[ 0..9 ]> ** 15..16 $/
         or return 400, [ Content-type => 'text/plain' ], [ 'That cannot possibly be a VISA or American Express.' ];
 

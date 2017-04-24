@@ -1,31 +1,26 @@
 #!/usr/bin/env smackup
 use v6;
 
-use Smack::Request;
-
 sub app(%env) {
-    start {
-        # Use Smack::Request to parse the environment
-        my $req = Smack::Request.new(%env);
+    # Parse the parameters (naïvely)
+    my $qs       = %env<QUERY_STRING>;
+    my %params   = $qs.split('&')».split('=').flat; # naïve
 
-        # Load our input
-        my $input = $req.parameters<input>;
+    # Load our input AND validate!
+    my $input = %params<input>;
+    return 400, [ Content-type => 'text/html' ], [ 'You are naughty.' ]
+        unless $input ~~ /^ \w+ $/;
 
-        # Validate the input to make sure there aren't any <script> tags in it
-        return 400, [ Content-type => 'text/html' ], [ 'You are naughty.' ]
-            unless $input ~~ /^ \w+ $/;
+    # Prior to outputting, make sure we encode it for HTML
+    my $output = $input.trans([ '<',    '>',    '&' ],
+                              [ '&lt;', '&gt;', '&amp;' ]);
 
-        # Prior to outputting, make sure we encode it for HTML
-        my $output = $input.trans([ '<',    '>',    '&' ],
-                                  [ '&lt;', '&gt;', '&amp;' ]);
-
-        # Display that input in the HTML page
-        200, [ Content-type => 'text/html' ],
-        [
-            qq[<html><head><title>Hello</title></head>],
-            qq[<body><p>$output</p></body></html>],
-        ]
-    }
+    # BAD BAD BAD No validation, <script>...</script> gets through!
+    200, [ Content-type => 'text/html' ],
+    [
+        qq[<html><head><title>Hello</title></head>],
+        qq[<body><p>$input</p></body></html>],
+    ]
 }
 
 # vim: ft=perl6 ts=4 sw=4

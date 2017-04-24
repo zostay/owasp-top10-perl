@@ -1,24 +1,14 @@
 #!/usr/bin/env smackup
 use v6;
 
-use Smack::Builder;
-use Smack::Request;
-
-# DevOps set SMACK_ENV to "production" in production
-our $developer_mode = %*ENV<SMACK_ENV> eq 'development';
+# DevOps set MYAPP_DEV_MODE to "production" in production
+our $developer-mode = %*ENV<MYAPP_DEV_MODE> eq 'development';
 
 sub app(%env) {
+    my @content  = '<h1>Fancy Production Application</h1>';
+    push @content, "<!-- debug-info() -->" if $developer-mode;
 
-    # Use Smack::Request to parse the environment
-    my $req = Smack::Request.new(%env);
-
-    200, [ Content-type => 'text/html' ], [ '<h1>Fancy Production Application</h1>' ];
+    200, [ Content-type => 'text/html' ], @content;
 }
-
-builder {
-    enable 'Debug' if $developer_mode;
-
-    &app;
-};
 
 # vim: ft=perl6 ts=4 sw=4 sts=4

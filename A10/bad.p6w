@@ -2,7 +2,7 @@
 use v6;
 
 sub app(%env) {
-    # Build a request object to parse the parameters for us
+    # Parse the parameters (naïvely)
     my $qs     = %env<QUERY_STRING>;
     my %params = $qs.split('&')».split('=').flat;
 

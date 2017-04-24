@@ -1,10 +1,8 @@
 #!/usr/bin/env smackup
-use v5.22;
+use v6;
 
-use SMack::Request;
-
-# This example assumes that you have Smack::Middleware::Session in place or
-# something similar.
+use Crypt::Bcrypt;
+use Crypt::AES; # doesn't exist
 
 # Very official storage things
 my %passwords;
@@ -20,29 +18,27 @@ my %credit_cards;
 #
 my $PROD_SECRET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123';
 
-use Crypt::Argon2;
-
 sub app(%env) {
-
-    # Use Smack::Request to parse the env
-    my $req = SMack::Request.new(%env);
+    my %session := %env<p6w.session>;
+    my %params   = %env<p6w.input>.reduce({ $^a ~ $^b }).decode('UTF-8')\
+                                  .split('&')».split('=').flat; # naïve
 
     return 403, [ 'Content-type' => 'text/plain' ], [ 'This connection is not secure.' ]
-        unless $req.secure;
+        unless %env<p6w.url-scheme> eq 'https';
 
-    return 403, [ Content-type => 'text/plain' ], [ 'You are not admin. Go away.' ]
-        unless $req.session<authorized-user>;
+    return 403, [ Content-type => 'text/plain' ], [ 'You are not authorized. Go away.' ]
+        unless %params<authorized-user>;
 
-    my $name     = $req.body-parameters<name>;
+    my $name     = %params<name>;
     $name ~~ /^ <[ a..z A..Z ]>+ $/
         or return 400, [ Content-type => 'text/plain' ], [ 'That name is illegal.' ];
 
-    my $password = $req.body-parameters<password>;
+    my $password = %params<password>;
 
-    # Storing passwords with Argon2i
-    %passwords{ $name } = argon2-hash($salt ~ $password);
+    # Storing passwords with Bcrypt using all the rounds!
+    %passwords{ $name } = bcrypt-hash($password, :18rounds);
 
-    my $cc_number = $req.body-parameters<credit-card-number>;
+    my $cc_number = %env<credit-card-number>;
     $cc_number =~ /^ <[ 0..9 ]> ** 15..16 $/
         or return 400, [ Content-type => 'text/plain' ], [ 'That cannot possibly be a VISA or American Express.' ];
 
