@@ -1,0 +1,16 @@
+#!/usr/bin/env smackup
+use v6;
+
+use JSON::Tiny;
+
+sub app(%env) {
+    my $info = from-json(%env<p6w.input>.reduce(* ~ *));
+    my $class = $info<class>;
+    my $obj = $class.new(|$into<args>);
+
+    my $output = $obj.do-something();
+
+    200, [ Content-Type => 'application/x-yaml' ], [ $output ]
+}
+
+# vim: ft=perl6 ts=4 sw=4 sts=4

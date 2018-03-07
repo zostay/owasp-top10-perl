@@ -1,0 +1,22 @@
+#!/usr/bin/env smackup
+use v6;
+
+# Turn login parameters into a logged user, or Nil
+class User { ... }
+sub authenticate-login(%env) returns User { ... }
+
+sub app(%env) {
+    # Authenticate the user based on the incoming request
+    with authenticate-login(%env) -> $user {
+        %env<p6wx.logger>.("LOGIN $user.name()");
+        200, [ Content-Type => 'text/plain' ], [ "Login success for $user.name()" ];
+    }
+
+    # Or login failed
+    else {
+        %env<p6wx.logger>.("LOGIN FAILED", :level<warn>);
+        200, [ Content-Type => 'text/plain' ], [ "Login failure." ];
+    }
+}
+
+# vim: ft=perl6 ts=4 sw=4 sts=4
